@@ -18,16 +18,16 @@ Param(
 $invocation = (Get-Variable MyInvocation).Value
 $directorypath = Split-Path $invocation.MyCommand.Path
 $parentDirectoryPath = (Get-Item $directorypath).Parent.FullName
-$amsflowRootDirectoryPath = (Get-Item $parentDirectoryPath).Parent.Parent.FullName
-$amsflowSourceDirectoryPath = "$amsflowRootDirectoryPath\source"
+$petclinicRootDirectoryPath = (Get-Item $parentDirectoryPath).Parent.Parent.FullName
+$petclinicSourceDirectoryPath = "$petclinicRootDirectoryPath"
 
 # Constants:
 $webAppPublishingProfileFileName = $directorypath + "\petclinic.publishsettings"
 echo "web publishing profile will be stored to: $webAppPublishingProfileFileName"
 
 # Determine which directory to deploy:
-# $sourceDirToDeploy = $amsflowSourceDirectoryPath + "\..\..\target\petclinic.war"
-$sourceDirToDeploy = "C:\Users\Christof\source\spring-petclinic\spring-petclinic\target"
+ $sourceDirToDeploy = $petclinicSourceDirectoryPath + "\spring-petclinic\target\petclinic.war"
+# $sourceDirToDeploy = "C:\Users\Christof\source\spring-petclinic\spring-petclinic\target\petclinic.war"
 echo "source directory to deploy: $sourceDirToDeploy"
 
 # Build the pet-clinic code:
@@ -60,5 +60,5 @@ echo "computer name: $computername"
 & "C:\Program Files (x86)\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
 -verb:sync `
 -source:contentPath="$sourceDirToDeploy" `
--dest:contentPath="$WebAppName/webapps/petclinic.war",ComputerName="https://$computername/msdeploy.axd?site=$websiteName",UserName="$username",Password="$password",AuthType="Basic"
+-dest:contentPath="$WebAppName/webapps/petclinic.war,computerName=https://$computername/msdeploy.axd?site=$websiteName,userName=$username,password=$password,authType=Basic"
 
