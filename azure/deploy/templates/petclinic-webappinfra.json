@@ -1,0 +1,118 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "WebAppName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "AzureWebJobStorageDashboardType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    },
+    "AzureWebJobStorageType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_ZRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Premium_LRS"
+      ]
+    }
+  },
+  "variables": {
+    "AzureWebJobStorageDashboardName": "[toLower(concat('JobStorDash', uniqueString(resourceGroup().id)))]",
+    "AzureWebJobStorageName": "[toLower(concat('JobStor', uniqueString(resourceGroup().id)))]"      
+  },
+  "resources": [    
+    {
+      "name": "[parameters('WebAppName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-08-01",
+      "tags": {
+        "displayName": "WebApp"
+      },
+      "properties": {
+        "name": "[parameters('WebAppName')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', reference(concat('Microsoft.Resources/deployments/', 'common'), '2015-11-01').outputs.appServicePlanName.value)]",
+        "siteConfig": {
+          "AlwaysOn": true,
+          "connectionStrings": [
+            {
+              "name": "MS_AzureStoreConnectionString",
+              "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('AzureWebJobStorageName'),';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('AzureWebJobStorageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "name": "appsettings",
+          "type": "config",
+          "apiVersion": "2015-08-01",
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', parameters('WebAppName'))]"
+          ],
+          "tags": {
+            "displayName": "WebAppSettings"
+          },
+          "properties": {
+            "AzureWebJobsStorage": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('AzureWebJobStorageName'),';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('AzureWebJobStorageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]",
+            "AzureWebJobsDashboard": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('AzureWebJobStorageDashboardName'),';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('AzureWebJobStorageDashboardName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]",
+            "WEBSITE_LOAD_CERTIFICATES": "*"            
+          }
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "config",
+          "dependsOn": [
+            "[concat('Microsoft.Web/sites/', parameters('WebAppName'))]"
+          ],
+          "properties": {           
+          }
+        }
+      ]
+    },
+    {
+      "name": "[variables('AzureWebJobStorageDashboardName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "AzureWebJobStorageDashboard"
+      },
+      "properties": {
+        "accountType": "[parameters('AzureWebJobStorageDashboardType')]"
+      }
+    },
+    {
+      "name": "[variables('AzureWebJobStorageName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "AzureWebJobStorage"
+      },
+      "properties": {
+        "accountType": "[parameters('AzureWebJobStorageType')]"
+      }
+    }
+
+  ],
+  "outputs": {
+   
+  }
+}

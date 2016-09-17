@@ -1,0 +1,60 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {   
+    "AppServicePlanName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "AppServicePlanSKU": {
+      "type": "string",
+      "allowedValues": [
+        "Free",
+        "Shared",
+        "Basic",
+        "Standard"
+      ],
+      "defaultValue": "Basic"
+    },
+    "AppServicePlanWorkerSize": {
+      "type": "string",
+      "allowedValues": [
+        "0",
+        "1",
+        "2"
+      ],
+      "defaultValue": "0"
+    }
+  },
+  "variables": {
+   
+  },
+  "resources": [
+    {
+      "name": "[parameters('AppServicePlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2014-06-01",
+      "dependsOn": [ ],
+      "tags": {
+        "displayName": "AppServicePlan"
+      },
+      "properties": {
+        "name": "[parameters('AppServicePlanName')]",
+        "sku": "[parameters('AppServicePlanSKU')]",
+        "workerSize": "[parameters('AppServicePlanWorkerSize')]",
+        "numberOfWorkers": 1
+      }
+    }
+  ],
+  "outputs": {
+    "appServicePlanSKU": {
+      "type": "string",
+      "value": "[parameters('AppServicePlanSKU')]"
+    },
+    "appServicePlanName": {
+      "type": "string",
+      "value": "[parameters('AppServicePlanName')]"
+    }
+  }
+}
