@@ -79,7 +79,11 @@
           "dependsOn": [
             "[concat('Microsoft.Web/sites/', parameters('WebAppName'))]"
           ],
-          "properties": {           
+          "properties": {
+            "alwaysOn": true,
+            "javaVersion": "1.8",
+            "javaContainer": "TOMCAT",
+            "javaContainerVersion": "8.0"
           }
         }
       ]

@@ -30,8 +30,12 @@ echo "web publishing profile will be stored to: $webAppPublishingProfileFileName
 # $sourceDirToDeploy = "C:\Users\Christof\source\spring-petclinic\spring-petclinic\target\petclinic.war"
 echo "source directory to deploy: $sourceDirToDeploy"
 
-# Build the pet-clinic code:
-# TODO: call Maven here
+# Build the pet-clinic code, generating the .war file:
+echo "Running Maven to create .war file"
+$dirToRunMavenIn = $petclinicSourceDirectoryPath + "\spring-petclinic\"
+Push-Location $dirToRunMavenIn
+& "mvn" clean install
+Pop-Location
 
 # Select Subscription:
 Get-AzureRmSubscription -SubscriptionName "$SubscriptionName" | Select-AzureRmSubscription
